@@ -4,6 +4,7 @@ const naranja = document.getElementById('naranja');
 const verde = document.getElementById('verde');
 const gameboard = document.getElementById('gameboard');
 const btn = document.getElementById('btnEmpezar');
+const gameMessage = document.getElementById('gameMessage');
 const ULTIMO_NIVEL = 10;
 
 
@@ -11,7 +12,7 @@ swal('Simon Dice', '¡Recorre los 10 niveles y conviertete en el nuevo rey!', 'i
       {
         buttons:  "Vamos !"
       })
-  .then(() => swal('Instrucciones', 'Repite la secuencia de colores dada por Simon dando click en el color correspondiente en el orden exacto.', 'warning',
+  .then(() => swal('Instrucciones', 'Repite la secuencia de colores dada por Simon en el orden exacto.', 'warning',
       {
         buttons:  "Entendido"
       }));
@@ -34,7 +35,8 @@ class Juego {
           violeta,
           naranja,
           verde
-        }
+        };
+        this.crearMensaje('');
     }
 
 
@@ -50,13 +52,14 @@ class Juego {
     siguienteNivel() {
         this.subNivel = 0;
         this.color = [];
+        this.eliminarClick();
         this.generarSecuencia();
         this.iluminarSecuencia();
     }
     
 
   generarSecuencia() {
-      this.secuencia = new Array(ULTIMO_NIVEL).fill(0).map(n => Math.floor(Math.random() * 4)); // explicame cual es el flujo de este array?
+      this.secuencia = new Array(ULTIMO_NIVEL).fill(0).map(n => Math.floor(Math.random() * 4)); // explicame cual es el flujo de este algoritmo?
       for (var i = 0; i < this.secuencia.length; i++) {
         this.color.push(this.transformarNumeroAColor(this.secuencia[i]))
       }
@@ -65,6 +68,8 @@ class Juego {
 
   iluminarSecuencia() {  // Se podria mejorar esta parte, haciendola mas modificable globalmente, ya que si deseo agregarle mas niveles al juego tendria que poner mas .then y eso es impractico en largo plazo.
                           // La pregunta aqui es como?
+      this.crearMensaje('Memoriza la secuencia');
+
       this.promesasDeSecuencia(this.color[0], 1000, 0)
         .then(() => this.promesasDeSecuencia(this.color[1], 1000, 1))
         .then(() => this.promesasDeSecuencia(this.color[2], 1000, 2))
@@ -147,6 +152,7 @@ class Juego {
                 this.colores.violeta.addEventListener('click', this.elegirColor)
                 this.colores.verde.addEventListener('click', this.elegirColor)
                 gameboard.classList.add('cursor')
+                this.crearMensaje('Tu turno');
             }, 1500);
     }
 
@@ -155,6 +161,7 @@ class Juego {
         this.colores.violeta.removeEventListener('click', this.elegirColor);
         this.colores.naranja.removeEventListener('click', this.elegirColor);
         this.colores.verde.removeEventListener('click', this.elegirColor);
+        gameboard.classList.remove('cursor');
     }
 
 
@@ -166,43 +173,39 @@ class Juego {
         setTimeout(() => this.finalizar(), 100);
     }
 
+    crearMensaje(mensaje) {
+        gameMessage.innerHTML = mensaje;
+    }
 
     finalizar() {
-      if (this.numeroColor === this.secuencia[this.subNivel])
-      {
-        this.subNivel++;
+      if (this.numeroColor === this.secuencia[this.subNivel]) {
 
-        if (this.subNivel === this.nivel)
-          this.nivel++;
-        else if(this.subNivel < this.nivel)
-          return;
+          this.subNivel++;
 
-            if (this.nivel === (ULTIMO_NIVEL + 1)) {
-              this.reiniciarJuego();
-              this.ganoElJuego();
-            }
-            else {
-              swal('¡Has subido de nivel!', 'Estas en el nivel: ' + this.nivel, 'success')
+          if (this.subNivel === this.nivel)
+            this.nivel++;
+          else if(this.subNivel < this.nivel)
+            return;
+
+          if (this.nivel === (ULTIMO_NIVEL + 1)) {
+            this.ganoElJuego();
+          } else {
+              swal('¡Has subido de nivel!', 'Estas en el nivel ' + this.nivel, 'success')
                 .then(() => {
-                  this.reiniciarJuego();
                   this.siguienteNivel();
                 })
             }
-        } else
-          {
-            this.reiniciarJuego();
+        } else {
             this.perdioElJuego();
           }
       }
 
-    reiniciarJuego() {
-        this.eliminarClick();
-        gameboard.classList.remove('cursor');
-    }  
-
     ganoElJuego() {
         swal('Ganaste', '¡Felicitaciones has ganado nuevo rey Simon!', 'success')
-          .then(this.inicializar());
+          .then(() => {
+              this.eliminarClick();
+              this.inicializar();
+        });
     }
 
     perdioElJuego() {
