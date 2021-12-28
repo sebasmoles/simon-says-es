@@ -1,0 +1,19 @@
+{
+  "name": "simon-says-es",
+  "version": "1.0.0",
+  "description": "The famous simon says game",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebasmoles/simon-says-es.git"
+  },
+  "author": "@sebasmoles",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.2"
+  }
+}
